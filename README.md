@@ -1,9 +1,15 @@
 # Repo-Infraestructura
-Repositorio que contiene solamente la infraestructura del Proyecto para el Despliegue
 
-Aclaraciones Importantes:
-1 - Este trabajo se ha realizado en WSL (Windows Server Linux)
-2 - Se ha utilizado incialmente carpetas en windows que luego han sido clonadas a WSL
-3 - Se ha utilizado Visual Studio Code en ambos Entornos (Windows y Linux) junto a la extension WSL de Visual Studio Code (ID de extension -> ms-vscode-remote.remote-wsl)
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Este repositorio contiene únicamente la **infraestructura** del proyecto para su despliegue en entorno de desarrollo basado en contenedores y servicios en la nube.
 
+---
+
+## Aclaraciones importantes
+
+1. Este trabajo se ha realizado en **WSL** (Windows Subsystem for Linux).
+2. Se utilizaron inicialmente carpetas en **Windows**, que luego fueron clonadas dentro del entorno **WSL**.
+3. El editor utilizado fue **Visual Studio Code** en ambos entornos (Windows y Linux), junto con la extensión oficial de WSL:
+
+   > ID de extensión → `ms-vscode-remote.remote-wsl`
+
+---
