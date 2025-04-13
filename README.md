@@ -6,14 +6,18 @@ Este repositorio contiene únicamente la **infraestructura** del proyecto para s
 
 ## Aclaraciones importantes
 
-1. Es requisito OBLIGATORIO tener instalado Minikube, que utilice el driver de Docker y kubectl 
-2. Este trabajo se ha realizado en **WSL** (Windows Subsystem for Linux).
+1. Este trabajo se ha realizado en **WSL** (Windows Subsystem for Linux), Minikube, DockerDesktop y kubectl.
+2. Es requisito OBLIGATORIO tener instalados los programas mencionados en el punto anterior
+3. Es requisito OBLIGATORIO tener la integracion con WSL en DockerDesktop. Para activarlo: DockerDesktop -> settings -> resources -> wsl integration
 3. Se utilizaron inicialmente carpetas en **Windows**, que luego fueron clonadas dentro del entorno **WSL**.
 4. El editor utilizado fue **Visual Studio Code** en ambos entornos (Windows y Linux), junto con la extensión oficial de WSL:
 
    > ID de extensión → `ms-vscode-remote.remote-wsl`
 
 ---
+
+## Empezando con el Despliegue 
+
 
 # Guía de Despliegue - Kubernetes con Minikube
 
@@ -26,8 +30,8 @@ Abri Visual Studio Code y agrega la carpeta creada en el punto anterior al Espac
 ## Paso 3: Clonar Repositorios
 Con el comando `git clone <url del repositorio>` deberas clonar las carpetas que contienen la infraestructura y el Sitio Web. El comando entonces quedaria compuesto de la siguiente manera:
 
-- Para clonar el repo de la Infraestructura -> `https://github.com/EstebanEspz/Repo-Infraestructura.git`
-- Para clonar el Repo del Sitio Web -> `https://github.com/EstebanEspz/Static-Website-Fork.git`
+- Para clonar el repo de la Infraestructura -> `git clone https://github.com/EstebanEspz/Repo-Infraestructura.git`
+- Para clonar el Repo del Sitio Web -> `git clone https://github.com/EstebanEspz/Static-Website-Fork.git`
 
 ## Paso 4: Abrir WSL
 Teniendo ya todo clonado en la carpeta de **WINDOWS** es hora de abrir WSL.
@@ -69,22 +73,28 @@ En tu terminal se deberia ver algo asi:
 esteban123@LAPTOP-BSV0P1K4:~/Proyecto-Despliegue$ code .
 ```
 
-Esto abrirá (si tenes la extension instalada nombrada en la aclaracion 3) una ventana de Visual con todo el directorio y todos los archivos que se ejecuta del lado de WSL. Visual te puede preguntar si confias en los autores, y deberas darle a que si.
+Esto abrirá (si tenes la extension instalada nombrada en las aclaraciones) una ventana de Visual con todo el directorio y todos los archivos ejecutándose del lado de WSL. Visual te puede preguntar si confias en los autores, y deberas darle a que si.
 
 ## Paso 8: Terminal Integrada WSL
 En este nuevo Visual Abierto abriremos la terminal integrada que está ya conectada al WSL. Para ello podes irte a la pestaña superior que dice "Terminal" y darle a "Nuevo Terminal" O si queres hacerlo mas rápido, `CTRL+SHIFT+Ñ` (si tenes los shortcuts por defecto).
 
 ## Paso 9: Iniciar Minikube
-En esta nueva terminal, lo primero que vamos a hacer es tirar el comando:
+En esta nueva terminal, lo primero que vamos a hacer es tirar el comando a continuacion, **PERO ANTES FIJATE BIEN LAS COSAS A TENER EN CUENTA**
 
 ```bash
-minikube start
+minikube start --driver=docker --mount --mount-string="/home/esteban123/Proyecto-Despliegue/Proyecto-Tests/Static-Website-Fork:/mnt/sitio-despliegue" 
 ```
 
-(Espera a que todo se cree, toma su tiempito)
+**A tener en cuenta**: Debes tener la ruta raiz **COMPLETA** donde tenes el contenido HTML (en mi caso /home/esteban123/Proyecto-Despliegue/Proyecto-Tests/Static-Website-Fork).
+
+La ruta "/mnt/sitio-despliegue" debe ser exactamente igual a la que tenes en tu PV en hostPath (Si no cambiaste nada en ese archivo, ignora esta aclaración)
+
+¿Como busco mi ruta raiz completa?
+
+En la misma terminal **ANTES DE TIRAR EL COMANDO** tenes que navegar hasta el directorio "Static-Website-Fork" y ahi tiras un pwd. La ruta que te salga, copiala y pegala en el comando que estabamos trabajando arriba 
 
 ## Paso 10: Ir a la Carpeta de Infraestructura
-Ahora debes moverte hasta la carpeta que contiene la infraestructura; deberia aparecerte algo asi:
+Ahora debes moverte hasta la carpeta que contiene la infraestructura (Repo-Infraestructura); deberia aparecerte algo asi:
 
 ```bash
 esteban123@LAPTOP-BSV0P1K4:~/Proyecto-Despliegue/Proyecto-Test/Repo-Infraestructura$
@@ -97,13 +107,14 @@ Una vez dentro, tenemos dos caminos para elegir; podemos tirar el comando:
 kubectl apply -f <nombredelarchivo.yaml>
 ```
 
-o si estas dentro de la carpeta (y es lo que te recomiendo) tira el siguiente comando:
+o si estas dentro de la carpeta Repo-Infraestructura (y es lo que te recomiendo si venis respetando los pasos) tira el siguiente comando:
 
 ```bash
 kubectl apply -R -f .
 ```
+Este comando aplica todos los manifiestos YAML de forma recursiva, incluyendo el directorio actual y los subdirectorios (ahorrandote lineas de comandos)
 
-Esto deberia darte una salida asi:
+Una vez aplicado ese comando, deberias tener una salida asi:
 
 ```
 deployment.apps/portal-deployment created
@@ -119,7 +130,7 @@ Chequea que el POD se haya levantado correctamente, para eso utiliza el comando:
 kubectl get pods
 ```
 
-Si tiras este comando instantaneamente luego del paso 11, tal vez te salga el campo "READY" 0/1 ya que necesita un tiempo para poder crearlo; y deberas esperar a que se cree. Para chequear esto ultimo volve a tirar el mismo comando.
+Si tiras este comando instantaneamente luego del paso 11, tal vez te salga el campo "READY" 0/1 en el pod ya que necesita un tiempo para poder crearlo. Si esto es asi, deberas esperar a que se cree y que el status READY aparezca en 1/1. Para chequear esto ultimo volve a tirar el mismo comando.
 
 ## Paso 13: Verificar PV y PVC
 Ahora Chequea que los PV y PVC esten relacionados correctamente, para esto utiliza el comando:
@@ -130,50 +141,8 @@ kubectl get pv,pvc
 
 Aca tenes que ver que el status de ambos salga en "BOUND" y que ambos STORAGECLASS digan "mi-clase".
 
-## Paso 14: Ingresar por SSH a Minikube
-```bash
-minikube ssh
-sudo mkdir -p /mnt/sitio-despliegue
-exit
-```
 
-(No cambies nada del comando, si no el hostPath no encontrara la ruta y no funcionará).
-
-## Paso 15: Copiar Archivos del Sitio
-Ahora tendras que tirar varios comandos; lo primero que tenes que hacer es irte a WSL, y moverte hasta la carpeta donde esta el contenido de la pagina a desplegar. Para que te orientes, se tendria que ver algo asi:
-
-```bash
-~/Proyecto-Despliegue/Proyecto-Test/Static-Website-Fork
-```
-
-Copia esta direccion en el portapapeles que la vamos a usar en el siguiente paso.
-
-### Comandos:
-```bash
-minikube cp ~/Proyecto-Despliegue/Proyecto-Test/Static-Website-Fork/index.html /mnt/sitio-despliegue/index.html
-minikube cp ~/Proyecto-Despliegue/Proyecto-Test/Static-Website-Fork/style.css /mnt/sitio-despliegue/style.css
-minikube cp ~/Proyecto-Despliegue/Proyecto-Test/Static-Website-Fork/assets/DSC_0036.JPG /mnt/sitio-despliegue/assets/DSC_0036.JPG
-minikube cp ~/Proyecto-Despliegue/Proyecto-Test/Static-Website-Fork/assets/banner-bg.jpg /mnt/sitio-despliegue/assets/banner-bg.jpg
-minikube cp ~/Proyecto-Despliegue/Proyecto-Test/Static-Website-Fork/assets/banner-texture.png /mnt/sitio-despliegue/assets/banner-texture.png
-minikube cp ~/Proyecto-Despliegue/Proyecto-Test/Static-Website-Fork/assets/banner-texture@2x.png /mnt/sitio-despliegue/assets/banner-texture@2x.png
-minikube cp ~/Proyecto-Despliegue/Proyecto-Test/Static-Website-Fork/assets/img-banner@2x.png /mnt/sitio-despliegue/assets/img-banner@2x.png
-minikube cp ~/Proyecto-Despliegue/Proyecto-Test/Static-Website-Fork/assets/img-contact-form-bg.jpg /mnt/sitio-despliegue/assets/img-contact-form-bg.jpg
-minikube cp ~/Proyecto-Despliegue/Proyecto-Test/Static-Website-Fork/assets/img-prop-type@2x.jpg /mnt/sitio-despliegue/assets/img-prop-type@2x.jpg
-minikube cp ~/Proyecto-Despliegue/Proyecto-Test/Static-Website-Fork/assets/logo-new.png /mnt/sitio-despliegue/assets/logo-new.png
-```
-
-## ¿Qué hace este comando?
-Este comando copia el archivo que elijamos desde el entorno local de WSL (Linux dentro de Windows) hacia el sistema de archivos de la máquina virtual que corre Minikube. Nuevamente ten en cuenta todas las direcciones utilizadas de los directorios.
-
-### Verificación:
-```bash
-minikube ssh
-cd /mnt/sitio-despliegue/assets/
-ls
-exit
-```
-
-## Paso 16: Exponer Servicio en Navegador
+## Paso 14: Exponer Servicio en Navegador
 ```bash
 minikube service portal-service
 ```
@@ -196,8 +165,8 @@ Cuando este listo, te saldrá algo como esto:
 👉  http://127.0.0.1:35125 //Hace Ctrl + click para que te abra esa direccion en el navegador predeterminado 
 ```
 
-## Paso 17: ¡Felicidades!
-Felicidades concretaste el despliegue.
+## Paso 15: ¡Felicidades!
+Felicidades!! concretaste el despliegue. Si queres testear que es persistente, te dejé a proposito en la linea 17 del index.html (dentro del nav-bar) la palabra "Sevicio" en vez de "Servicios", corregila y guarda el cambio en el index.html y refrescá la pagina. Deberias poder ver que la palabra se corrigió correctamente!! 
 
 
 
