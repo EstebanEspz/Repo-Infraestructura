@@ -22,7 +22,7 @@ Este repositorio contiene únicamente la **infraestructura** del proyecto para s
 # Guía de Despliegue - Kubernetes con Minikube
 
 ## Paso 1: Crear Carpeta en Windows
-Crea una carpeta en tu Escritorio de Windows, con el nombre **"Proyecto-8Ks"**. Si queres crearla con otro nombre, tene en cuenta que vas a tener que estar muy pendiente a la hora de manejar los comandos con los directorios.
+Crea una carpeta en tu Escritorio de Windows, con el nombre **"Proyecto-Tests"**. Si queres crearla con otro nombre, tene en cuenta que vas a tener que estar muy pendiente a la hora de manejar los comandos con los directorios.
 
 ## Paso 2: Abrir Visual Studio Code
 Abri Visual Studio Code y agrega la carpeta creada en el punto anterior al Espacio de trabajo.
