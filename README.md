@@ -28,7 +28,7 @@ Crea una carpeta en tu Escritorio de Windows, con el nombre **"Proyecto-Tests"**
 Abri Visual Studio Code y agrega la carpeta creada en el punto anterior al Espacio de trabajo.
 
 ## Paso 3: Clonar Repositorios
-Con el comando `git clone <url del repositorio>` deberas clonar las carpetas que contienen la infraestructura y el Sitio Web. El comando entonces quedaria compuesto de la siguiente manera:
+Abri una nueva terminal (Terminal -> Nueva Terminal), y con el comando `git clone <url del repositorio>` deberas clonar las carpetas que contienen la infraestructura y el Sitio Web. El comando entonces quedaria compuesto de la siguiente manera:
 
 - Para clonar el repo de la Infraestructura -> `git clone https://github.com/EstebanEspz/Repo-Infraestructura.git`
 - Para clonar el Repo del Sitio Web -> `git clone https://github.com/EstebanEspz/Static-Website-Fork.git`
